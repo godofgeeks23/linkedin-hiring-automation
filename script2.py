@@ -8,6 +8,7 @@ gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 
+
 def merge_csv_files(directory):
     data_frames = []
 
@@ -20,50 +21,44 @@ def merge_csv_files(directory):
     merged_df = pd.concat(data_frames, ignore_index=True)
     return merged_df
 
-def download_file(url, output_path):
-    response = requests.get(url)
-    with open(output_path, 'wb') as file:
-        file.write(response.content)
 
 def upload_to_drive(file_path):
+    print(f"Uploading {file_path} to Google Drive")
     file_drive = drive.CreateFile({'title': os.path.basename(file_path)})
     file_drive.SetContentFile(file_path)
     file_drive.Upload()
+    print(f"File {file_path} uploaded to Google Drive")
 
-    # Enable sharing and get the shareable link
+    print("Setting file permissions to public...")
     file_drive.InsertPermission({
         'type': 'anyone',
         'value': 'anyone',
         'role': 'reader'
     })
+    print("File permissions set to public. Done.")
     return file_drive['alternateLink']
+
 
 if __name__ == "__main__":
     csv_directory = 'seperate_csvs'
     role_name = 'UIUX'
     output_csv = role_name + '_merged.csv'
-    download_dir = 'downloads'
-
-    if not os.path.exists(download_dir):
-        os.makedirs(download_dir)
-
+    
     merged_df = merge_csv_files(csv_directory)
 
-    if 'resume_link' in merged_df.columns:
-        merged_df['drive_link'] = ''
-
-        for index, row in merged_df.iterrows():
-            pdf_url = row['resume_link']
-            if pdf_url == 'undefined':
-                merged_df.at[index, 'drive_link'] = 'undefined'
-            else:
-                pdf_filename = os.path.join(download_dir, f'file_{index}.pdf')
-                download_file(pdf_url, pdf_filename)
-                drive_link = upload_to_drive(pdf_filename)
-                merged_df.at[index, 'drive_link'] = drive_link
-
+    # go through each row and find if a pdf file is present with name same as 'name' column in the row, in the csv_directory folder
+    for index, row in merged_df.iterrows():
+        name = row['name']
+        pdf_filename = os.path.join(csv_directory, f'{name}.pdf')
+        if os.path.exists(pdf_filename):
+            resume_gdrive_link = upload_to_drive(pdf_filename)
+            merged_df.at[index, 'resume_pdf_file_link'] = resume_gdrive_link
+        else:
+            merged_df.at[index, 'resume_pdf_file_link'] = 'undefined'
 
     merged_df.to_csv(output_csv, index=False)
-    print(f"Merged CSV file with Google Drive links saved locally as {output_csv}")
+    print(f"Merged CSV file with Google Drive links saved locally as {
+          output_csv}")
     final_csv_drive_link = upload_to_drive(output_csv)
-    print(f"Final CSV file uploaded to Google Drive with link: {final_csv_drive_link}")
+    print(f"Final CSV file uploaded to Google Drive with link: {
+          final_csv_drive_link}")
