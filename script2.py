@@ -15,6 +15,7 @@ def merge_csv_files(directory):
     for filename in os.listdir(directory):
         if filename.endswith('.csv'):
             file_path = os.path.join(directory, filename)
+            print(f"📂 Reading file: {file_path}")
             df = pd.read_csv(file_path)
             data_frames.append(df)
 
@@ -41,7 +42,7 @@ def upload_to_drive(file_path):
 
 if __name__ == "__main__":
     csv_directory = 'seperate_csvs'
-    role_name = 'UIUX'
+    role_name = 'AIML_Engineer'
     output_csv = role_name + '_merged.csv'
     
     merged_df = merge_csv_files(csv_directory)
