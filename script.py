@@ -3,6 +3,7 @@ import pandas as pd
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
+
 def merge_csv_files(directory, output_file):
     data_frames = []
     for filename in os.listdir(directory):
@@ -10,11 +11,11 @@ def merge_csv_files(directory, output_file):
             file_path = os.path.join(directory, filename)
             df = pd.read_csv(file_path)
             data_frames.append(df)
-    
 
     merged_df = pd.concat(data_frames, ignore_index=True)
-    
+
     merged_df.to_csv(output_file, index=False)
+
 
 def upload_to_drive(file_path):
     gauth = GoogleAuth()
