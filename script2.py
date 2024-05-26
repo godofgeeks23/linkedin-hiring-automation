@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import requests
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
