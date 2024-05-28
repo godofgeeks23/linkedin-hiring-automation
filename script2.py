@@ -7,6 +7,7 @@ gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 
+gdrive_folder_id = 'xxxxxx'
 
 def merge_csv_files(directory):
     data_frames = []
@@ -24,7 +25,7 @@ def merge_csv_files(directory):
 
 def upload_to_drive(file_path):
     print(f"💡 Uploading {file_path} to Google Drive")
-    file_drive = drive.CreateFile({'title': os.path.basename(file_path)})
+    file_drive = drive.CreateFile({'title': os.path.basename(file_path), 'parents': [{'id': gdrive_folder_id}]})
     file_drive.SetContentFile(file_path)
     file_drive.Upload()
     print(f"✅ File {file_path} uploaded to Google Drive")
@@ -41,7 +42,7 @@ def upload_to_drive(file_path):
 
 if __name__ == "__main__":
     csv_directory = 'seperate_csvs'
-    role_name = 'AIML_Engineer'
+    role_name = 'Marketing_intern'
     output_csv = role_name + '_merged.csv'
     
     merged_df = merge_csv_files(csv_directory)
